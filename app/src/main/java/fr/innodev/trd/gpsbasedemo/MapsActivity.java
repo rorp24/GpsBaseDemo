@@ -1,8 +1,11 @@
 package fr.innodev.trd.gpsbasedemo;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -23,13 +26,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.ArrayList;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private Location myLocation;
+    private LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private Log log;
+
+    ArrayList<LocationProvider> providers = new ArrayList<LocationProvider>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             ;
         };
+        ArrayList<String> names = (ArrayList<String>) locationManager.getProviders(true);
+        for (String name : names)
+        {
+            providers.add(locationManager.getProvider(name));
+        }
+
     }
 
     /**
@@ -89,6 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
