@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "138637952201",
+    "firebase_url": "https://gpsbasedemo.firebaseio.com",
+    "project_id": "gpsbasedemo",
+    "storage_bucket": "gpsbasedemo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138637952201:android:17d37b18c1f5ea8f",
+        "android_client_info": {
+          "package_name": "fr.innodev.trd.gpsbasedemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "138637952201-m0ib8o9f1vckc70efum8lr8hepo9n4ht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArl-xnCY836sdm0DirOM3tfzH82wWoKtU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
