@@ -34,6 +34,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.widget.TextView;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -46,13 +52,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     ArrayList<LocationProvider> providers = new ArrayList<LocationProvider>();
     AlertDialog.Builder builder;
+    SensorManager sensorManager = null;
+    Sensor accelerometre = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        accelerometre = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        builder = new AlertDialog.Builder(this);
+
+        if(accelerometre != null)
+        {
+            sensorManager.registerListener(mSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_UI);
+        }
+        else
+        {
+            builder.setMessage("erreur pas de capteur")
+                    .setPositiveButton("ok", null);
+            final AlertDialog alert = builder.create();
+            alert.show();
+            new CountDownTimer(3000, 1000) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void onFinish() {
+                    // TODO Auto-generated method stub
+
+                    alert.dismiss();
+                }
+            }.start();
+        }
 
         while (!permissionGranted()) ;
-        builder = new AlertDialog.Builder(this);
+
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -120,6 +159,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    final SensorEventListener mSensorEventListener = new SensorEventListener() {
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // Que faire en cas de changement de précision ?
+
+        }
+
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            // Que faire en cas d'évènements sur le capteur ?
+
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(mSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(mSensorEventListener, accelerometre);
+    }
 
     /**
      * Manipulates the map once available.
