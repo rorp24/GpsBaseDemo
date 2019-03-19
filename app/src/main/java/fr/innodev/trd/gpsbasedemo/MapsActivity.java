@@ -49,6 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationCallback mLocationCallback;
     private Log log;
     private Location ancienne;
+    private double distance;
 
     ArrayList<LocationProvider> providers = new ArrayList<LocationProvider>();
     AlertDialog.Builder builder;
@@ -125,7 +126,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Update UI with location data
                     log.v("INFO", "Location Callback" + location.toString());
                     updateMapDisplay(location);
-                    builder.setMessage("vous avez  parcouru "+location.distanceTo(ancienne)+ "m")
+                    builder.setMessage("GPS: vous avez  parcouru "+location.distanceTo(ancienne)+ "m\r" +
+                                                    "Acceleromettre vous avez parcouru "+distance+"m")
                         .setPositiveButton("ok", null);
                     final AlertDialog alert = builder.create();
                     alert.show();
@@ -145,6 +147,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }.start();
                     ancienne = location;
+                    distance = 0;
                 }
             }
         };
@@ -167,7 +170,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         public void onSensorChanged(SensorEvent sensorEvent) {
             // Que faire en cas d'évènements sur le capteur ?
-
+            distance = Math.abs(distance)+Math.abs(sensorEvent.values[0]) + Math.abs(sensorEvent.values[2]);
         }
     };
 
