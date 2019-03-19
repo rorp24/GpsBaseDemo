@@ -170,6 +170,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         public void onSensorChanged(SensorEvent sensorEvent) {
             // Que faire en cas d'évènements sur le capteur ?
+            //j'ai un doute, mais il parrait que ça suffit pour faire le calcul
+            //si ça a pas l'air de fonctionner, supprimer distance
             distance = Math.abs(distance)+Math.abs(sensorEvent.values[0]) + Math.abs(sensorEvent.values[2]);
         }
     };
