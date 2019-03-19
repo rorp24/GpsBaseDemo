@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.location.Location;
 import android.location.LocationManager;
@@ -79,8 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
-                    if(ancienne == null)
-                    {
+                    if(ancienne == null) {
                         ancienne = location;
                     }
                     // Update UI with location data
@@ -88,8 +88,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     updateMapDisplay(location);
                     builder.setMessage("vous avez  parcouru "+location.distanceTo(ancienne)+ "m")
                         .setPositiveButton("ok", null);
-                    AlertDialog alert = builder.create();
+                    final AlertDialog alert = builder.create();
                     alert.show();
+                    new CountDownTimer(3000, 1000) {
+
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            // TODO Auto-generated method stub
+
+                            alert.dismiss();
+                        }
+                    }.start();
                     ancienne = location;
                 }
             }
