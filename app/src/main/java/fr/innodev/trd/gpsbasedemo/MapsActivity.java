@@ -38,7 +38,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;//= (LocationManager)getSystemService(Context.LOCATION_SERVICE);
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
-    private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private Log log;
 
@@ -85,8 +84,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
 
         mLocationRequest = LocationRequest.create();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(20000);
+        mLocationRequest.setInterval(15000);
+        mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                 mLocationCallback,
