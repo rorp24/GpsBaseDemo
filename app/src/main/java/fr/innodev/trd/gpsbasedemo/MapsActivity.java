@@ -1,12 +1,14 @@
 package fr.innodev.trd.gpsbasedemo;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -31,7 +33,7 @@ import java.util.ArrayList;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+    private LocationManager locationManager;//= (LocationManager)getSystemService(Context.LOCATION_SERVICE);
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private Log log;
@@ -41,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         while (!permitionGranted()) ;
 
         setContentView(R.layout.activity_maps);
@@ -52,13 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            String message = "Vous n'avez pas autorisé la géolocalisation";
+
             return;
         }
         mFusedLocationClient.getLastLocation()
@@ -86,8 +83,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ;
         };
         ArrayList<String> names = (ArrayList<String>) locationManager.getProviders(true);
-        for (String name : names)
-        {
+        for (String name : names) {
             providers.add(locationManager.getProvider(name));
         }
 
@@ -107,6 +103,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+        }
+        mMap.setMyLocationEnabled(true);
     }
 
     private void updateMapDisplay(Location myLocation) {
