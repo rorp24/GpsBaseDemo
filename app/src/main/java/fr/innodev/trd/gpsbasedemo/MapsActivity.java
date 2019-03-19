@@ -9,7 +9,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
-import android.support.design.widget.Snackbar;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -38,6 +38,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;//= (LocationManager)getSystemService(Context.LOCATION_SERVICE);
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private Log log;
 
@@ -46,8 +47,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        while (!permitionGranted()) ;
+
+        while (!permissionGranted()) ;
 
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -57,8 +58,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            String message = "Vous n'avez pas autorisé la géolocalisation";
-
             return;
         }
         mFusedLocationClient.getLastLocation()
@@ -68,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
+                            log.v("INFO", "Location Result" + location.toString());
                             updateMapDisplay(location);
                         }
                     }
@@ -78,19 +78,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onLocationResult(LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
                     // Update UI with location data
-                    log.v("INFO", "Location" + location.toString());
+                    log.v("INFO", "Location Callback" + location.toString());
                     updateMapDisplay(location);
                 }
             }
-
-            ;
         };
-        ArrayList<String> names = (ArrayList<String>) locationManager.getProviders(true);
-        for (String name : names) {
-            providers.add(locationManager.getProvider(name));
-        }
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(20000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                mLocationCallback,
+                null /* Looper */);
 
     }
+
 
     /**
      * Manipulates the map once available.
@@ -121,7 +124,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curPos, zoom - 3.0f));
     }
 
-    private boolean permitionGranted() {
+    private boolean permissionGranted() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) {//Can add more as per requirement
