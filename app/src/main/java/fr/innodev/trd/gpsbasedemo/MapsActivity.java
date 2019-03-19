@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.app.AlertDialog;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -40,15 +41,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private Log log;
+    private Location ancienne;
 
     ArrayList<LocationProvider> providers = new ArrayList<LocationProvider>();
+    AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         while (!permissionGranted()) ;
-
+        builder = new AlertDialog.Builder(this);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -76,9 +79,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
+                    if(ancienne == null)
+                    {
+                        ancienne = location;
+                    }
                     // Update UI with location data
                     log.v("INFO", "Location Callback" + location.toString());
                     updateMapDisplay(location);
+                    builder.setMessage("vous avez  parcouru "+location.distanceTo(ancienne)+ "m")
+                        .setPositiveButton("ok", null);
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    ancienne = location;
                 }
             }
         };
