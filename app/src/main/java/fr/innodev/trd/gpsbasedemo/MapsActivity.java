@@ -63,7 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if(accelerometre != null)
         {
-            sensorManager.registerListener(mSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(AccSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_UI);
         }
         else
         {
@@ -125,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    final SensorEventListener mSensorEventListener = new SensorEventListener() {
+    final SensorEventListener AccSensorEventListener = new SensorEventListener() {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
             // Que faire en cas de changement de précision ?
 
@@ -144,13 +144,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(mSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(AccSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        sensorManager.unregisterListener(mSensorEventListener, accelerometre);
+        sensorManager.unregisterListener(AccSensorEventListener, accelerometre);
     }
 
     /**
