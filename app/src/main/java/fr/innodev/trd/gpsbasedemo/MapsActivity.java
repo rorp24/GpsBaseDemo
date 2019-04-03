@@ -16,7 +16,6 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.app.AlertDialog;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -43,16 +42,15 @@ import android.widget.TextView;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LocationManager locationManager;//= (LocationManager)getSystemService(Context.LOCATION_SERVICE);
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private Log log;
     private Location ancienne;
-    private double distance;
+    private double distanceX;
+    private double distanceZ;
 
     ArrayList<LocationProvider> providers = new ArrayList<LocationProvider>();
-    AlertDialog.Builder builder;
     SensorManager sensorManager = null;
     Sensor accelerometre = null;
 
@@ -60,9 +58,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        accelerometre = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accelerometre = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
-        builder = new AlertDialog.Builder(this);
 
         if(accelerometre != null)
         {
@@ -70,25 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         else
         {
-            builder.setMessage("erreur pas de capteur")
-                    .setPositiveButton("ok", null);
-            final AlertDialog alert = builder.create();
-            alert.show();
-            new CountDownTimer(3000, 1000) {
 
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    // TODO Auto-generated method stub
-
-                }
-
-                @Override
-                public void onFinish() {
-                    // TODO Auto-generated method stub
-
-                    alert.dismiss();
-                }
-            }.start();
         }
 
         while (!permissionGranted()) ;
@@ -111,6 +90,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (location != null) {
                             // Logic to handle location object
                             log.v("INFO", "Location Result" + location.toString());
+                            if(ancienne == null) {
+                                ancienne = location;
+                            }
                             updateMapDisplay(location);
                         }
                     }
@@ -126,28 +108,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Update UI with location data
                     log.v("INFO", "Location Callback" + location.toString());
                     updateMapDisplay(location);
-                    builder.setMessage("GPS: vous avez  parcouru "+location.distanceTo(ancienne)+ "m\r" +
-                                                    "Acceleromettre vous avez parcouru "+distance+"m")
-                        .setPositiveButton("ok", null);
-                    final AlertDialog alert = builder.create();
-                    alert.show();
-                    new CountDownTimer(3000, 1000) {
-
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            // TODO Auto-generated method stub
-
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            // TODO Auto-generated method stub
-
-                            alert.dismiss();
-                        }
-                    }.start();
                     ancienne = location;
-                    distance = 0;
+                    distanceX = 0;
+                    distanceZ = 0;
                 }
             }
         };
@@ -170,9 +133,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         public void onSensorChanged(SensorEvent sensorEvent) {
             // Que faire en cas d'évènements sur le capteur ?
-            //j'ai un doute, mais il parrait que ça suffit pour faire le calcul
-            //si ça a pas l'air de fonctionner, supprimer distance
-            distance = Math.abs(distance)+Math.abs(sensorEvent.values[0]) + Math.abs(sensorEvent.values[2]);
+
+
+            distanceX = distanceX+sensorEvent.values[0]/1000000;
+            distanceZ = distanceZ+ sensorEvent.values[2]/1000000;
+
         }
     };
 
@@ -211,7 +176,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void updateMapDisplay(Location myLocation) {
         // Add a marker in Sydney and move the camera
         LatLng curPos = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(curPos).title("Position courante"));
+        LatLng PosAcc = new LatLng(ancienne.getLatitude() - distanceX, myLocation.getLongitude() - distanceZ);
+        mMap.addMarker(new MarkerOptions().position(curPos).title("Position GPS"));
+        mMap.addMarker(new MarkerOptions().position(PosAcc).title("Position Accélération"));
         float zoom = mMap.getMaxZoomLevel();
         log.d("INFO", "Zoom Max = " + zoom);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curPos, zoom - 3.0f));
